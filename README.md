@@ -1,4 +1,4 @@
-#--------------------PROCESS FLOW-------------------------------------------------
+#------------------------------------------------------------------PROCESS FLOW--------------------------------------------------------------------------------
 #Note: Used Sample network
 1) To run entire process flow, run startFabric.sh which internally calls byfn.sh up which ideally brings up the entire fabric network based on the configurations provided in yaml files.
 cmd: ./startFabric.sh (FabricUsecase/product/)
