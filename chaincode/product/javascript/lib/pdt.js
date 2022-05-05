@@ -4,7 +4,7 @@ const { Contract, Context } = require('fabric-contract-api');
 
 class Product extends Contract {
 
-
+// Adding new product into chaincode state
     async addPdt(ctx, args) {
       let parameters = args
       console.log("params: "+parameters)
@@ -56,12 +56,13 @@ class Product extends Contract {
 
       
     }
-
+ // To Send random transaction to ledger
     async endorseTran(ctx, _key, _payload) {
         console.info('============= START : Endorse Transaction proposal===========');
         await ctx.stub.putState(_key, JSON.stringify(_payload));
         console.info('============= END : Endorse Transaction proposal ===========');
     }
+    // Retrieving the record for specific key from state level db
     async queryTran(ctx, _key) {
         const pdtAsbytes = await ctx.stub.getstate(_key);
 
@@ -74,13 +75,8 @@ class Product extends Contract {
         
     }
 
-    
-
-
+// Retrieving all records from ledger
     async viewAllProducts(ctx, args) {
-        // const startKey = 'device0-0'; // all transactions
-        // const startKey = 'product-' + (Date.now() - 3600000); //last one hour
-        // const endKey = 'product-' + Date.now();
         let startKey = args[0];
         let endKey = args[1];
     
