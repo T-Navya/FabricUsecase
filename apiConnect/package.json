@@ -1,0 +1,27 @@
+{
+  "name": "apiconnect",
+  "version": "1.0.0",
+  "description": "",
+  "main": "apiConnect.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "api-key-auth": "^0.2.2",
+    "body-parser": "^1.19.0",
+    "crypto": "^1.0.1",
+    "express": "^4.17.1",
+    "fabric-network": "^2.0.0-beta.4",
+    "forever": "^2.0.0",
+    "fs": "0.0.1-security",
+    "helmet": "^3.22.0",
+    "local-storage": "^2.0.0",
+    "nodemon": "^2.0.3",
+    "passport": "^0.4.1",
+    "passport-headerapikey": "^1.2.1",
+    "passport-localapikey": "0.0.3",
+    "path": "^0.12.7"
+  }
+}
