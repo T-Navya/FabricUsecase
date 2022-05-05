@@ -3,7 +3,7 @@ var bodyParser = require('body-parser');
 var passport = require('passport');
 var HeaderAPIKeyStrategy = require('passport-headerapikey').HeaderAPIKeyStrategy;
 var helmet = require('helmet');
-var crypto = require('crypto');
+
 
 var app = express();
 app.use(helmet.hidePoweredBy());
@@ -74,6 +74,7 @@ app.get('/api/queryalltransactions', passport.authenticate('headerapikey', { ses
 
         // Create a new gateway for connecting to our peer node.
         const gateway = new Gateway();
+        //user permitted by admin can view the products by using this api
         await gateway.connect(ccp, { wallet, identity: 'user', discovery: { enabled: true, asLocalhost: true } });
 
         // Get the network (channel) our contract is deployed to.
@@ -83,8 +84,7 @@ app.get('/api/queryalltransactions', passport.authenticate('headerapikey', { ses
         const contract = network.getContract('product');
 
         // Evaluate the specified transaction.
-        // queryAllDevices transaction - requires no arguments, ex: ('queryAllDevices')
-        const result = await contract.evaluateTransaction('queryAllTransactions');
+        const result = await contract.evaluateTransaction('viewAllProducts',0,999);
         console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
         res.status(200).json({ response: result.toString() });
 
@@ -125,8 +125,7 @@ app.get('/api/query/:transaction', passport.authenticate('headerapikey', { sessi
         const contract = network.getContract('product');
 
         // Evaluate the specified transaction.
-        // queryDevice transaction - requires 1 argument, ex: ('queryDevice', 'DEVICE4')
-        let result = await contract.evaluateTransaction('queryTransaction', req.params.transaction);
+        let result = await contract.evaluateTransaction('queryTran', req.params.transaction);
      
         let response =result.toString()
         response =response.replace(/\\/gi,'');
@@ -144,8 +143,7 @@ app.get('/api/query/:transaction', passport.authenticate('headerapikey', { sessi
 
 app.post('/api/endorseTran/', passport.authenticate('headerapikey', { session: false, failureRedirect: '/api/unauthorized' }), async function (req, res) {
     try {
-
-        if ((req.body.key == undefined || req.body.attributes == undefined)) {
+        if (req.body.id == undefined) {
             res.status(400).send('parameters missing')
             return;
         }
@@ -153,45 +151,39 @@ app.post('/api/endorseTran/', passport.authenticate('headerapikey', { session: f
         const walletPath = path.join(__dirname, '..', 'product', 'wallet');
         const wallet = await Wallets.newFileSystemWallet(walletPath);
 
-        // Check to see if we've already enrolled the user.
-        const userExists = await wallet.get('user');
-        if (!userExists) {
-            console.log('An identity for the user "user" does not exist in the wallet');
-            console.log('Run the registerUser.js application before retrying');
-            return;
-        }
-
         // Create a new gateway for connecting to our peer node.
         const gateway = new Gateway();
-        await gateway.connect(ccp, { wallet, identity: 'user', discovery: { enabled: true, asLocalhost: true } });
+        //only admin can use this api
+        await gateway.connect(ccp, { wallet, identity: 'admin', discovery: { enabled: true, asLocalhost: true } });
         // Get the network (channel) our contract is deployed to.
         const network = await gateway.getNetwork('mychannel');
 
         // Get the contract from the network.
         const contract = network.getContract('product');
         // Submit the specified transaction.
-        // endorse transaction - requires 2 argument, ex: ('endorseTran', 'DEVICE5', '14', 'SPO2<=18', '1234455')
-        console.log("rew: " + JSON.stringify(req.body.attributes))
-        console.log("key: " + req.body.key)
-        let result = undefined;
+       let result = undefined;
         try {
-            result = await contract.evaluateTransaction('queryTransaction', req.body.key);
+           result = await contract.evaluateTransaction('queryTran', req.body.id);
             console.log("got the result")
+ 
+       }
+       catch (error) {
+           console.log("error: " + error)
+       }
+       if (result == undefined) {
+       var json_data = JSON.stringify(req.body)
+       var result = [];
 
-        }
-        catch (error) {
-            console.log("error: " + error)
-        }
-        if (result == undefined) {
-            await contract.submitTransaction('endorseTran', req.body.key, JSON.stringify(req.body.attributes));
-            console.log('Transaction has been submitted');
-
-
-            // Disconnect from the gateway.
+       for(var i in json_data)
+           result.push([i, json_data [i]]);
+       console.log("result " +result)
+         await contract.submitTransaction('addPdt',result);
+         console.log('Transaction has been submitted');
+        //  Disconnect from the gateway.
             await gateway.disconnect();
-        }
+       }
         else
-            res.status(428).send('Transaction already exists')
+           res.status(428).send('Transaction already exists')
         res.send('Transaction has been submitted');
     } catch (error) {
         console.error(`Failed to submit transaction: ${error}`);
@@ -199,7 +191,7 @@ app.post('/api/endorseTran/', passport.authenticate('headerapikey', { session: f
     }
 
 })
-app.get('/api/exists/:transaction', passport.authenticate('headerapikey', { session: false, failureRedirect: '/api/unauthorized' }), async function (req, res) {
+app.get('/api/removeTran', passport.authenticate('headerapikey', { session: false, failureRedirect: '/api/unauthorized' }), async function (req, res) {
     try {
 
         // Create a new file system based wallet for managing identities.
@@ -218,6 +210,7 @@ app.get('/api/exists/:transaction', passport.authenticate('headerapikey', { sess
 
         // Create a new gateway for connecting to our peer node.
         const gateway = new Gateway();
+        //user permitted by admin can remove the transaction
         await gateway.connect(ccp, { wallet, identity: 'user', discovery: { enabled: true, asLocalhost: true } });
 
         // Get the network (channel) our contract is deployed to.
@@ -227,17 +220,17 @@ app.get('/api/exists/:transaction', passport.authenticate('headerapikey', { sess
         const contract = network.getContract('product');
 
         // Evaluate the specified transaction.
-        // queryexists- requires 1 argument, ex: ('queryDevice', 'DEVICE4')
-        const result = await contract.evaluateTransaction('transactionExists', req.params.transaction);
+        const result = await contract.evaluateTransaction('delete', req.body.id);
         console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
         res.status(200).json({ response: result.toString() });
 
     } catch (error) {
         console.error(`Failed to evaluate transaction: ${error}`);
-        res.status(412).json({ error: 'Transaction Verification failed' });
+        res.status(412).json({ error: 'Transaction could not get  deleted' });
 
     }
 });
+
 
 
 
