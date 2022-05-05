@@ -1,7 +1,12 @@
-PROCESS FLOW
+PROCESS FLOW 
+--> Created a fabric blockchain network with two organizations of one peer each. 
+--> Implemented chaincode functions - Adding a product , removing a product, Viewing a product, removing all Products , Viewing all Products (can be found in pdt.js)
+--> Written APIs to execute the chaincode functions by securing API with a API key.
+--> Chaincode functions can be tested through curl command or postman.
+
+Steps to Execute the process.
 1) To run entire process flow, run startFabric.sh which internally calls byfn.sh up which ideally brings up the entire fabric network based on the configurations provided in yaml files.
 cmd: ./startFabric.sh (FabricUsecase/product/)
---> Configured two organizations with one peer each for this usecase.
 2) Run apiConnect.js to test the APIs.
 cmd: node apiConnect.js (FabricUsecase/apiConnect/)
 --> APIs are exposed through nginx for dev environment
