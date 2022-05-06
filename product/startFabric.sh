@@ -12,9 +12,7 @@ starttime=$(date +%s)
 #  docker ps --filter name=dev-peer* --filter status=running -aq | xargs docker stop | xargs docker rm
 #  docker ps --filter name=dev-peer*  -aq | xargs docker rmi
 
-# docker network create -d bridge --subnet 192.168.0.0/24 --gateway 192.168.0.1 mynet
-# sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
-# sudo iptables -t nat -A OUTPUT -p tcp --dport 80 -j REDIRECT --to-port 8080
+
 
 QUERY_CHAINCODE_NAME=query_get_api
 QUERY_CHAINCODE_PATH=/opt/gopath/src/github.com/chaincode/query_chaincode
@@ -108,17 +106,11 @@ echo "Checking commit readiness of the smart contract"
 ${PEER0_ORG1} lifecycle chaincode checkcommitreadiness -o orderer.pdt.com:7050 --channelID mychannel  --name product --version 1.0  --sequence 1 --signature-policy "OR('Org1MSP.peer','Org2MSP.peer')"
 echo "Committing smart contract"	
 ${PEER0_ORG1} lifecycle chaincode commit  --channelID mychannel --name product --version 1.0 -o orderer.pdt.com:7050 --signature-policy "OR('Org1MSP.peer','Org2MSP.peer')" --sequence 1   --peerAddresses peer0.org2.pdt.com:12051  --tlsRootCertFiles ${ORG2_TLS_ROOTCERT_FILE} --peerAddresses peer0.org1.pdt.com:11051 	--tlsRootCertFiles ${ORG1_TLS_ROOTCERT_FILE}
-# sleep 10
-# echo "Invoking transaction using InitTran function of smart contract"
-# docker exec cli peer chaincode invoke --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/pdt.com/orderers/orderer.pdt.com/msp/tlscacerts/tlsca.pdt.com-cert.pem --channelID mychannel --name product --orderer orderer.pdt.com:7050 --peerAddresses peer0.org1.pdt.com:11051  --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.pdt.com/peers/peer0.org1.pdt.com/tls/ca.crt -c '{"function":"randomGenerator","Args":[]}' --waitForEvent
-# echo "Querying the ledger" 
-# docker exec cli peer chaincode query --channelID mychannel --name product --peerAddresses peer0.org1.pdt.com:11051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.pdt.com/peers/peer0.org1.pdt.com/tls/ca.crt --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/pdt.com/orderers/orderer.pdt.com/msp/tlscacerts/tlsca.pdt.com-cert.pem --tls --orderer orderer.pdt.com:7050 -c '{"Args":["queryalldevices"]}'
 
 sudo rm -rf wallet
 node enrollAdmin.js
 node registerUser.js
 
- #docker exec $(docker ps -q --filter "name=dev-peer0.org1.*" )  /bin/sh -c "echo '35.240.142.60 cognisense.virtusa.com' >> /etc/hosts"
 set +x
   
 cat <<EOF
