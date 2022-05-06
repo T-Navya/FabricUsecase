@@ -80,7 +80,7 @@ sleep $DELAY
 # echo 
  
 
-## Set the anchor peers for each virtusa in the channel
+## Set the anchor peers for each org in the channel
 echo "Updating anchor peers for org1..."
 updateAnchorPeers 0 1
 echo  "Updating anchor peers for org2"
